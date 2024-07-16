@@ -11,7 +11,7 @@ from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 
 
 OUTPUT_PATH = Path(__file__).parent
-ASSETS_PATH = OUTPUT_PATH / Path(r".\assets\login_view")
+ASSETS_PATH = OUTPUT_PATH / Path(r".\assets\admin_login_view")
 
 
 def relative_to_assets(path: str) -> Path:
@@ -44,10 +44,10 @@ canvas.create_rectangle(
     outline="")
 
 canvas.create_text(
-    47.0,
-    258.0,
+    30.0,
+    259.0,
     anchor="nw",
-    text="Bienvenido!",
+    text="Bienvenido al sistema de inventario",
     fill="#FFFFFF",
     font=("SFProDisplay Bold", 26 * -1)
 )
@@ -119,15 +119,6 @@ canvas.create_text(
     font=("SFProDisplay Regular", 15 * -1)
 )
 
-canvas.create_text(
-    472.0,
-    504.0,
-    anchor="nw",
-    text="Administrador? Haga click acá:",
-    fill="#000000",
-    font=("SFProDisplay Regular", 12 * -1)
-)
-
 button_image_1 = PhotoImage(
     file=relative_to_assets("button_1.png"))
 button_1 = Button(
@@ -138,22 +129,6 @@ button_1 = Button(
     relief="flat"
 )
 button_1.place(
-    x=483.0,
-    y=527.0,
-    width=123.0,
-    height=28.0
-)
-
-button_image_2 = PhotoImage(
-    file=relative_to_assets("button_2.png"))
-button_2 = Button(
-    image=button_image_2,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: print("button_2 clicked"),
-    relief="flat"
-)
-button_2.place(
     x=419.0,
     y=426.0,
     width=123.0,
