@@ -166,3 +166,4 @@ cython_debug/
 /.idea/inspectionProfiles/profiles_settings.xml
 /.idea/ProyectoFinal_DAI.iml
 /.idea/vcs.xml
+/.idea/dataSources.xml
