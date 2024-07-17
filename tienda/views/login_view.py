@@ -5,7 +5,9 @@
 
 from pathlib import Path
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
-from admin_login_view import open_admin_login_gui  # Import the function
+from admin_login_view import open_admin_login_gui
+from tienda.controllers.login_controller import handle_login
+
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r".\assets\login_view")
@@ -14,8 +16,20 @@ def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
 window = Tk()
+
+window.withdraw()
 window.geometry("900x600")
-window.configure(bg = "#FFFFFF")
+window.configure(bg="#FFFFFF")
+window.title("Admin Login")
+
+screen_width = window.winfo_screenwidth()
+screen_height = window.winfo_screenheight()
+x = (screen_width / 2) - (900 / 2)
+y = (screen_height / 2) - (600 / 2)
+
+window.geometry('+%d+%d' % (x, y))
+
+window.deiconify()
 
 canvas = Canvas(
     window,
@@ -116,7 +130,7 @@ button_2 = Button(
     image=button_image_2,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("button_2 clicked"),
+    command=lambda: handle_login(entry_1, entry_2),
     relief="flat"
 )
 button_2.place(x=419.0, y=426.0, width=123.0, height=28.0)

@@ -14,9 +14,20 @@ def relative_to_assets(path: str) -> Path:
 
 def open_admin_login_gui():
     window = Toplevel()
+    window.withdraw()
     window.geometry("900x600")
     window.configure(bg="#FFFFFF")
     window.title("Admin Login")
+
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+    x = (screen_width / 2) - (900 / 2)
+    y = (screen_height / 2) - (600 / 2)
+
+    window.geometry('+%d+%d' % (x, y))
+
+    window.deiconify()
+
 
     canvas = Canvas(
         window,
