@@ -1,5 +1,6 @@
 from tienda.database.conexion import create_connection
 
+# unico a login
 def handle_login_attempt(username, password, ip_address):
     try:
         connection = create_connection()
@@ -26,3 +27,5 @@ def handle_login_attempt(username, password, ip_address):
     finally:
         if connection:
             connection.close()
+
+# unico a productos

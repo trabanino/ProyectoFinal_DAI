@@ -1,5 +1,7 @@
 from tkinter import messagebox
 from tienda.database.queries import handle_login_attempt
+from tienda.views.usuario_view import open_usuario_gui
+
 import requests
 
 def get_public_ip():
@@ -10,7 +12,7 @@ def get_public_ip():
         return "Unknown"
 
 
-def handle_login(username_entry, password_entry):
+def handle_login(username_entry, password_entry, window):
     username = username_entry.get()
     password = password_entry.get()
 
@@ -20,5 +22,7 @@ def handle_login(username_entry, password_entry):
 
     if success:
         messagebox.showinfo("Login exitoso", message)
+        window.destroy()
+        open_usuario_gui()
     else:
         messagebox.showerror("Login fallido", message)
