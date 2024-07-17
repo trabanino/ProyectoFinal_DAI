@@ -18,6 +18,14 @@ window = Tk()
 window.geometry("1024x700")
 window.configure(bg = "#FFFFFF")
 
+screen_width = window.winfo_screenwidth()
+screen_height = window.winfo_screenheight()
+x = (screen_width / 2) - (1024 / 2)
+y = (screen_height / 2) - (700 / 2)
+
+window.geometry('+%d+%d' % (x, y))
+
+window.deiconify()
 
 canvas = Canvas(
     window,
