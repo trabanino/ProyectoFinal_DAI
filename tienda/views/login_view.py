@@ -15,7 +15,7 @@ window = Tk()
 window.withdraw()
 window.geometry("900x600")
 window.configure(bg="#FFFFFF")
-window.title("Admin Login")
+window.title("Login")
 
 screen_width = window.winfo_screenwidth()
 screen_height = window.winfo_screenheight()
