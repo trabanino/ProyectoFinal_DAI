@@ -1,5 +1,3 @@
-from ipaddress import ip_address
-
 import mysql.connector
 from mysql.connector import Error
 
