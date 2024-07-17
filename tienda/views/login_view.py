@@ -115,7 +115,7 @@ button_1 = Button(
     image=button_image_1,
     borderwidth=0,
     highlightthickness=0,
-    command=open_admin_login_gui,  # Changed this line to use the imported function
+    command=open_admin_login_gui,
     relief="flat"
 )
 button_1.place(x=483.0, y=527.0, width=123.0, height=28.0)
