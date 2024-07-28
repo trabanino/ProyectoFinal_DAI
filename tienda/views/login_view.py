@@ -131,5 +131,20 @@ def open_login_gui():
     )
     button_2.place(x=419.0, y=426.0, width=123.0, height=28.0)
 
+    button_image_3 = PhotoImage(file=relative_to_assets("button_3.png"))
+    button_3 = Button(
+        image=button_image_3,
+        borderwidth=0,
+        highlightthickness=0,
+        command=lambda: print("button_3 clicked"),
+        relief="flat"
+    )
+    button_3.place(
+        x=715.0,
+        y=527.0,
+        width=123.0,
+        height=28.0
+    )
+
     window.resizable(False, False)
     window.mainloop()
