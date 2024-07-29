@@ -1,6 +1,5 @@
 from pathlib import Path
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
-from tienda.views.admin_login_view import open_admin_login_gui
 from tienda.controllers.login_controller import handle_login
 from tienda.views.register_view import open_register_view
 
@@ -103,25 +102,6 @@ def open_login_gui():
         fill="#000000",
         font=("SFProDisplay Regular", 15 * -1)
     )
-
-    canvas.create_text(
-        472.0,
-        504.0,
-        anchor="nw",
-        text="Administrador? Haga click aca:",
-        fill="#000000",
-        font=("SFProDisplay Regular", 12 * -1)
-    )
-
-    button_image_1 = PhotoImage(file=relative_to_assets("button_1.png"))
-    button_1 = Button(
-        image=button_image_1,
-        borderwidth=0,
-        highlightthickness=0,
-        command=open_admin_login_gui,
-        relief="flat"
-    )
-    button_1.place(x=483.0, y=527.0, width=123.0, height=28.0)
 
     button_image_2 = PhotoImage(file=relative_to_assets("button_2.png"))
     button_2 = Button(

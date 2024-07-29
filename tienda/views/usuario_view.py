@@ -13,6 +13,8 @@ from PIL import Image, ImageTk
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r"./assets/usuario_view")
 
+image_references = []  # Lista para mantener referencias a las imágenes
+
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
@@ -33,6 +35,7 @@ def display_image(source):
 
         image = image.resize((125, 125))  # Ajustar tamaño de la imagen
         photo = ImageTk.PhotoImage(image)
+        image_references.append(photo)  # Mantener referencia a la imagen
         return photo
     except (urllib.error.URLError, FileNotFoundError, IOError) as e:
         print(f"Error al cargar la imagen {source}: {e}")
@@ -40,7 +43,9 @@ def display_image(source):
         if default_image_path.exists():
             default_image = Image.open(default_image_path)
             default_image = default_image.resize((125, 125))  # Ajustar tamaño de la imagen
-            return ImageTk.PhotoImage(default_image)
+            photo = ImageTk.PhotoImage(default_image)
+            image_references.append(photo)  # Mantener referencia a la imagen
+            return photo
         else:
             print("La imagen por defecto no fue encontrada")
             return None

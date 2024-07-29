@@ -8,10 +8,17 @@ from tienda.session import Session
 from tienda.database.queries import get_products_by_category
 from tienda.cart import Cart
 
+
 cart = Cart()  # Crear una instancia del carrito
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r"./assets/productos_view")
+
+image_references = []  # Lista para mantener referencias a las imágenes
+
+def irse():
+    from tienda.views.usuario_view import open_usuario_gui
+    open_usuario_gui()
 
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
@@ -33,6 +40,7 @@ def display_image(source):
 
         image = image.resize((175, 125))
         photo = ImageTk.PhotoImage(image)
+        image_references.append(photo)  # Mantener referencia a la imagen
         return photo
     except (urllib.error.URLError, FileNotFoundError, IOError) as e:
         print(f"Error al cargar la imagen {source}: {e}")
@@ -40,7 +48,9 @@ def display_image(source):
         if default_image_path.exists():
             default_image = Image.open(default_image_path)
             default_image = default_image.resize((175, 125))
-            return ImageTk.PhotoImage(default_image)
+            photo = ImageTk.PhotoImage(default_image)
+            image_references.append(photo)  # Mantener referencia a la imagen
+            return photo
         else:
             print("La imagen por defecto no fue encontrada")
             return None
@@ -244,7 +254,7 @@ def create_product_grid(window, canvas, category_id, return_callback):
         image=logo_button_image,
         borderwidth=0,
         highlightthickness=0,
-        command=return_callback,  # Volver al menú principal
+        command=lambda: window.destroy() or irse(),
         relief="flat"
     )
     logo_button.image = logo_button_image  # Mantener referencia
@@ -312,13 +322,13 @@ def open_cart_view(window, canvas):
     back_button = tk.Button(
         window,
         text="Volver",
-        command=lambda: open_usuario_gui(),
+        command=lambda: window.destroy() or irse(),
         relief="flat"
     )
     back_button.place(x=50, y=y_position + 60, width=100, height=30)
 
 def main():
-    open_usuario_gui()
+    irse()
 
 if __name__ == "__main__":
     main()
