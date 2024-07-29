@@ -13,10 +13,7 @@ def handle_login_attempt(username, password, ip_address):
         if result and result[0] == password:
             return True, "Login exitoso"
         else:
-            cursor.execute("""
-                SELECT COUNT(*) FROM IPs
-                WHERE ip_address = %s AND attempt_time > (NOW() - INTERVAL 1 DAY)
-            """, (ip_address,))
+            cursor.execute("SELECT COUNT(*) FROM IPs WHERE ip_address = %s AND attempt_time > (NOW() - INTERVAL 1 DAY)", (ip_address,))
             attempts = cursor.fetchone()[0]
             if attempts < 10:
                 cursor.execute("INSERT INTO IPs (ip_address) VALUES (%s)", (ip_address,))
