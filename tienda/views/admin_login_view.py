@@ -79,7 +79,8 @@ def open_admin_login_gui():
         bd=0,
         bg="#D9D9D9",
         fg="#000716",
-        highlightthickness=0
+        highlightthickness=0,
+        show="*",
     )
     entry_2.place(x=420.0, y=352.0, width=244.0, height=40.0)
 
