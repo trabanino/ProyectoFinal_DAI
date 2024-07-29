@@ -1,8 +1,12 @@
-def login_required(func):
-    def wrapper(*args, **kwargs):
+from functools import wraps
+from tienda.session import Session
+from tkinter import messagebox
 
-        authenticated = True
-        if not authenticated:
-            raise Exception("Usuario no autenticado")
+def login_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if not Session.get('usuario'):
+            messagebox.showerror("Error", "Usuario no autenticado")
+            return
         return func(*args, **kwargs)
-    return wrapper
+    return decorated_view

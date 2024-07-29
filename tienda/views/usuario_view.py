@@ -1,10 +1,9 @@
 
 from pathlib import Path
-
-# from tkinter import *
-# Explicit imports to satisfy Flake8
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 
+from tienda.decoradores import login_required
+from tienda.session import Session
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r".\assets\usuario_view")
@@ -13,13 +12,23 @@ ASSETS_PATH = OUTPUT_PATH / Path(r".\assets\usuario_view")
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
+@login_required
 def open_usuario_gui():
 
     window = Tk()
-
+    window.withdraw()
     window.geometry("1024x700")
-    window.configure(bg = "#FFFFFF")
+    window.configure(bg="#FFFFFF")
+    window.title("Menu principal")
 
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+    x = (screen_width / 2) - (1024 / 2)
+    y = (screen_height / 2) - (700 / 2)
+
+    window.geometry('+%d+%d' % (x, y))
+
+    window.deiconify()
 
     canvas = Canvas(
         window,
@@ -72,7 +81,7 @@ def open_usuario_gui():
         887.0,
         31.0,
         anchor="nw",
-        text="Usuario ",
+        text=Session.get("usuario"),
         fill="#FFFFFF",
         font=("Inter", 25 * -1)
     )
@@ -140,7 +149,7 @@ def open_usuario_gui():
         image=button_image_1,
         borderwidth=0,
         highlightthickness=0,
-        command=lambda: print("button_1 clicked"),
+        command=lambda: print("Snacks clicked"),
         relief="flat"
     )
     button_1.place(
@@ -316,7 +325,7 @@ def open_usuario_gui():
         image=button_image_11,
         borderwidth=0,
         highlightthickness=0,
-        command=lambda: print("button_11 clicked"),
+        command=lambda: print(Session.get("usuario")),
         relief="flat"
     )
     button_11.place(

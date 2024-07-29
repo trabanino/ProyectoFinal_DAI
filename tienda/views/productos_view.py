@@ -5,6 +5,8 @@ from PIL import ImageTk, Image
 from tkinter import PhotoImage
 from pathlib import Path
 
+from tienda.session import Session
+
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r"./assets/productos_view")
 
@@ -208,7 +210,7 @@ def main():
         image=user_button_image,
         borderwidth=0,
         highlightthickness=0,
-        command=lambda: print("user clicked"),
+        command=lambda: print(Session.get("usuario"),),
         relief="flat"
     )
     user_button.place(
