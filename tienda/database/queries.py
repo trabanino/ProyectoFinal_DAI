@@ -1,6 +1,5 @@
 from tienda.database.conexion import create_connection
 
-# unico a login
 def handle_login_attempt(username, password, ip_address):
     try:
         connection = create_connection()
@@ -25,4 +24,28 @@ def handle_login_attempt(username, password, ip_address):
         if connection:
             connection.close()
 
-# unico a productos
+def get_categories():
+    try:
+        connection = create_connection()
+        if connection is None:
+            return []
+        cursor = connection.cursor()
+        cursor.execute("SELECT id, Nombre, imagen FROM Categoria")
+        categories = cursor.fetchall()
+        return categories
+    finally:
+        if connection:
+            connection.close()
+
+def get_products_by_category(category_id):
+    try:
+        connection = create_connection()
+        if connection is None:
+            return []
+        cursor = connection.cursor()
+        cursor.execute("SELECT Nombre, Precio, Imagen FROM Producto WHERE categoria_id = %s", (category_id,))
+        products = cursor.fetchall()
+        return products
+    finally:
+        if connection:
+            connection.close()

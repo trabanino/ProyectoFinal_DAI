@@ -4,8 +4,8 @@ import urllib.request
 from PIL import ImageTk, Image
 from tkinter import PhotoImage
 from pathlib import Path
-
 from tienda.session import Session
+from tienda.database.queries import get_products_by_category
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r"./assets/productos_view")
@@ -14,6 +14,9 @@ def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
 def display_image(source):
+    if source is None:
+        source = "default_image.png"
+
     try:
         if source.startswith(('http://', 'https://')):
             with urllib.request.urlopen(source) as u:
@@ -40,9 +43,8 @@ def display_image(source):
             return None
 
 class Product:
-    def __init__(self, name, category, price, image_source):
+    def __init__(self, name, price, image_source):
         self.name = name
-        self.category = category
         self.price = price
         self.image_source = image_source
         self.quantity = 1
@@ -71,11 +73,6 @@ class ProductView:
             fill="#9D0000", outline=""
         )
 
-        self.canvas.create_text(
-            self.x + 11, self.y + 203,
-            anchor="nw", text=self.product.category,
-            fill="#FFFFFF", font=("Inter", 14 * -1)
-        )
         self.canvas.create_text(
             self.x + 11, self.y + 185,
             anchor="nw", text=self.product.name,
@@ -145,17 +142,9 @@ class ProductView:
     def update_quantity_display(self):
         self.canvas.itemconfig(self.quantity_text, text=str(self.product.quantity))
 
-def create_product_grid(window, canvas):
-    products = [
-        Product("Banana", "Frutas", 1.00, "https://static.wixstatic.com/media/53e8bb_a1e88e551162485eb4ff962437300872~mv2.jpeg/v1/crop/x_0,y_105,w_1024,h_919/fill/w_525,h_471,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/Banana.jpeg"),
-        Product("Producto 2", "Categoria 2", 2.00, "image_2.png"),
-        Product("Producto 3", "Categoria 3", 3.00, "image_3.png"),
-        Product("Producto 4", "Categoria 4", 4.00, "image_4.png"),
-        Product("Producto 5", "Categoria 5", 5.00, "image_5.png"),
-        Product("Producto 6", "Categoria 6", 6.00, "image_6.png"),
-        Product("Producto 7", "Categoria 7", 7.00, "image_7.png"),
-        Product("Producto 8", "Categoria 8", 8.00, "image_8.png"),
-    ]
+def create_product_grid(window, canvas, category_id, return_callback):
+    products_data = get_products_by_category(category_id)  # Obtener productos por categoría desde la BD
+    products = [Product(name, price, image_source) for name, price, image_source in products_data]
 
     for product in products:
         product.load_image()
@@ -165,44 +154,68 @@ def create_product_grid(window, canvas):
         y = 159 + (i // 4) * 276
         ProductView(window, canvas, product, x, y)
 
-def main():
-    window = tk.Tk()
-    window.geometry("1024x700")
-    window.configure(bg = "#FFFFFF")
-
-    screen_width = window.winfo_screenwidth()
-    screen_height = window.winfo_screenheight()
-    x = (screen_width / 2) - (1024 / 2)
-    y = (screen_height / 2) - (700 / 2)
-
-    window.geometry('+%d+%d' % (x, y))
-
-    window.deiconify()
-
-    canvas = tk.Canvas(
-        window, bg="#FFFFFF", height=700, width=1024,
-        bd=0, highlightthickness=0, relief="ridge"
-    )
-    canvas.place(x=0, y=0)
-
-    create_product_grid(window, canvas)
-
-    canvas.create_text(
-        39.0,
-        120.0,
-        anchor="nw",
-        text="Productos",
-        fill="#720902",
-        font=("Inter", 25 * -1)
-    )
-
+    # Re-crear los elementos superiores
     canvas.create_rectangle(
         0.0,
         0.0,
         1024.0,
         99.0,
         fill="#720902",
-        outline="")
+        outline=""
+    )
+
+    entry_image_1 = PhotoImage(
+        file=relative_to_assets("entry_1.png"))
+    entry_bg_1 = canvas.create_image(
+        440.0,
+        49.5,
+        image=entry_image_1
+    )
+    entry_1 = tk.Entry(
+        bd=0,
+        bg="#D9D9D9",
+        fg="#000716",
+        highlightthickness=0
+    )
+    entry_1.place(
+        x=223.0,
+        y=19.0,
+        width=434.0,
+        height=59.0
+    )
+
+    image_image_1 = PhotoImage(
+        file=relative_to_assets("image_1.png"))
+    image_1 = canvas.create_image(
+        90.0,
+        45.0,
+        image=image_image_1
+    )
+
+    canvas.create_text(
+        887.0,
+        31.0,
+        anchor="nw",
+        text=Session.get("usuario"),
+        fill="#FFFFFF",
+        font=("Inter", 25 * -1)
+    )
+
+    logo_button_image = PhotoImage(
+        file=relative_to_assets("logo.png"))
+    logo_button = tk.Button(
+        image=logo_button_image,
+        borderwidth=0,
+        highlightthickness=0,
+        command=return_callback,  # Volver al menú principal
+        relief="flat"
+    )
+    logo_button.place(
+        x=54.0,
+        y=10.0,
+        width=73.0,
+        height=70.0
+    )
 
     user_button_image = PhotoImage(
         file=relative_to_assets("user.png"))
@@ -210,7 +223,7 @@ def main():
         image=user_button_image,
         borderwidth=0,
         highlightthickness=0,
-        command=lambda: print(Session.get("usuario"),),
+        command=lambda: print(Session.get("usuario")),
         relief="flat"
     )
     user_button.place(
@@ -236,26 +249,6 @@ def main():
         height=50.0
     )
 
-    search_bar_image = PhotoImage(
-        file=relative_to_assets("search_bar.png"))
-    entry_bg_1 = canvas.create_image(
-        440.0,
-        49.5,
-        image=search_bar_image
-    )
-    entry_1 = tk.Entry(
-        bd=0,
-        bg="#9D0000",
-        fg="#000716",
-        highlightthickness=0
-    )
-    entry_1.place(
-        x=248.0,
-        y=19.0,
-        width=384.0,
-        height=59.0
-    )
-
     search_button_image = PhotoImage(
         file=relative_to_assets("search.png"))
     search_button = tk.Button(
@@ -272,26 +265,8 @@ def main():
         height=50.0
     )
 
-    logo_button_image = PhotoImage(
-        file=relative_to_assets("logo.png"))
-    logo_button = tk.Button(
-        image=logo_button_image,
-        borderwidth=0,
-        highlightthickness=0,
-        command=lambda: print("logo clicked"),
-        relief="flat"
-    )
-    logo_button.place(
-        x=54.0,
-        y=10.0,
-        width=73.0,
-        height=70.0
-    )
-
-    window.resizable(False, False)
-    window.mainloop()
+def main():
+    open_usuario_gui()
 
 if __name__ == "__main__":
-    print("Debug")
-    print(f"Assets path: {ASSETS_PATH}")
     main()

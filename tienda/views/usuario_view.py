@@ -1,20 +1,51 @@
-
 from pathlib import Path
-from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
-
+from tkinter import Tk, Canvas, Entry, Button, PhotoImage
 from tienda.decoradores import login_required
 from tienda.session import Session
+from tienda.database.queries import get_categories
+from tienda.views.productos_view import create_product_grid
+
+import urllib.request
+import io
+from PIL import Image, ImageTk
 
 OUTPUT_PATH = Path(__file__).parent
-ASSETS_PATH = OUTPUT_PATH / Path(r".\assets\usuario_view")
-
+ASSETS_PATH = OUTPUT_PATH / Path(r"./assets/usuario_view")
 
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
+def display_image(source):
+    if source is None:
+        source = "default_image.png"
+
+    try:
+        if source.startswith(('http://', 'https://')):
+            with urllib.request.urlopen(source) as u:
+                raw_data = u.read()
+            image = Image.open(io.BytesIO(raw_data))
+        else:
+            image_path = relative_to_assets(source)
+            if not image_path.exists():
+                raise FileNotFoundError(f"El archivo de la imagen no fue encontrado en: {image_path}")
+            image = Image.open(image_path)
+
+        image = image.resize((125, 125))  # Ajustar tamaño de la imagen
+        photo = ImageTk.PhotoImage(image)
+        return photo
+    except (urllib.error.URLError, FileNotFoundError, IOError) as e:
+        print(f"Error al cargar la imagen {source}: {e}")
+        default_image_path = relative_to_assets("default_image.png")
+        if default_image_path.exists():
+            default_image = Image.open(default_image_path)
+            default_image = default_image.resize((125, 125))  # Ajustar tamaño de la imagen
+            return ImageTk.PhotoImage(default_image)
+        else:
+            print("La imagen por defecto no fue encontrada")
+            return None
+
 @login_required
 def open_usuario_gui():
-
     window = Tk()
     window.withdraw()
     window.geometry("1024x700")
@@ -32,15 +63,15 @@ def open_usuario_gui():
 
     canvas = Canvas(
         window,
-        bg = "#FFFFFF",
-        height = 700,
-        width = 1024,
-        bd = 0,
-        highlightthickness = 0,
-        relief = "ridge"
+        bg="#FFFFFF",
+        height=700,
+        width=1024,
+        bd=0,
+        highlightthickness=0,
+        relief="ridge"
     )
 
-    canvas.place(x = 0, y = 0)
+    canvas.place(x=0, y=0)
     canvas.create_rectangle(
         0.0,
         0.0,
@@ -95,244 +126,80 @@ def open_usuario_gui():
         font=("Inter", 25 * -1)
     )
 
-    image_image_2 = PhotoImage(
-        file=relative_to_assets("image_2.png"))
-    image_2 = canvas.create_image(
-        119.0,
-        284.0,
-        image=image_image_2
-    )
+    # Mantener referencias a las imágenes
+    category_images = []
 
-    image_image_3 = PhotoImage(
-        file=relative_to_assets("image_3.png"))
-    image_3 = canvas.create_image(
-        315.0,
-        287.0,
-        image=image_image_3
-    )
+    # Obtener categorías desde la base de datos
+    categories = get_categories()
 
-    image_image_4 = PhotoImage(
-        file=relative_to_assets("image_4.png"))
-    image_4 = canvas.create_image(
-        904.0,
-        284.0,
-        image=image_image_4
-    )
+    # Crear botones de categorías dinámicamente
+    for i, category in enumerate(categories):
+        category_id, category_name, category_image_path = category
 
-    image_image_5 = PhotoImage(
-        file=relative_to_assets("image_5.png"))
-    image_5 = canvas.create_image(
-        711.0,
-        287.0,
-        image=image_image_5
-    )
+        # Usar display_image para obtener la imagen
+        category_image = display_image(category_image_path)
+        category_images.append(category_image)  # Guardar la referencia de la imagen
 
-    image_image_6 = PhotoImage(
-        file=relative_to_assets("image_6.png"))
-    image_6 = canvas.create_image(
-        512.0,
-        287.0,
-        image=image_image_6
-    )
+        # Crear un canvas para cada categoría
+        category_canvas = Canvas(
+            window,
+            width=200,
+            height=250,
+            bg="#FFFFFF",
+            bd=0,
+            highlightthickness=0,
+            relief="ridge"
+        )
 
-    image_image_7 = PhotoImage(
-        file=relative_to_assets("image_7.png"))
-    image_7 = canvas.create_image(
-        707.0,
-        488.0,
-        image=image_image_7
-    )
+        # Dibujar fondo rojo
+        category_canvas.create_rectangle(
+            0, 0, 200, 250,
+            fill="#720902", outline=""
+        )
 
-    button_image_1 = PhotoImage(
-        file=relative_to_assets("button_1.png"))
-    button_1 = Button(
-        image=button_image_1,
-        borderwidth=0,
-        highlightthickness=0,
-        command=lambda: print("Snacks clicked"),
-        relief="flat"
-    )
-    button_1.place(
-        x=621.0,
-        y=526.0,
-        width=172.0,
-        height=34.0
-    )
+        # Añadir imagen de categoría
+        if category_image:
+            category_canvas.create_image(
+                100, 75,
+                image=category_image
+            )
 
-    image_image_8 = PhotoImage(
-        file=relative_to_assets("image_8.png"))
-    image_8 = canvas.create_image(
-        511.0,
-        488.0,
-        image=image_image_8
-    )
+        # Añadir nombre de categoría
+        category_canvas.create_text(
+            100, 200,
+            text=category_name,
+            fill="#FFFFFF",
+            font=("Inter", 16, "bold")
+        )
 
-    button_image_2 = PhotoImage(
-        file=relative_to_assets("button_2.png"))
-    button_2 = Button(
-        image=button_image_2,
-        borderwidth=0,
-        highlightthickness=0,
-        command=lambda: print("button_2 clicked"),
-        relief="flat"
-    )
-    button_2.place(
-        x=425.0,
-        y=526.0,
-        width=189.0,
-        height=34.0
-    )
+        # Colocar el canvas en la ventana
+        category_canvas.place(x=(i % 4) * 220 + 50, y=(i // 4) * 270 + 150)
 
-    image_image_9 = PhotoImage(
-        file=relative_to_assets("image_9.png"))
-    image_9 = canvas.create_image(
-        314.0,
-        488.0,
-        image=image_image_9
-    )
+        # Asociar el evento de clic al canvas
+        category_canvas.bind("<Button-1>", lambda event, cid=category_id: open_product_view(window, cid))
 
-    button_image_3 = PhotoImage(
-        file=relative_to_assets("button_3.png"))
-    button_3 = Button(
-        image=button_image_3,
-        borderwidth=0,
-        highlightthickness=0,
-        command=lambda: print("button_3 clicked"),
-        relief="flat"
-    )
-    button_3.place(
-        x=230.0,
-        y=325.0,
-        width=183.0,
-        height=34.0
-    )
-
-    button_image_4 = PhotoImage(
-        file=relative_to_assets("button_4.png"))
-    button_4 = Button(
-        image=button_image_4,
-        borderwidth=0,
-        highlightthickness=0,
-        command=lambda: print("button_4 clicked"),
-        relief="flat"
-    )
-    button_4.place(
-        x=33.0,
-        y=322.0,
-        width=172.0,
-        height=34.0
-    )
-
-    button_image_5 = PhotoImage(
-        file=relative_to_assets("button_5.png"))
-    button_5 = Button(
-        image=button_image_5,
-        borderwidth=0,
-        highlightthickness=0,
-        command=lambda: print("button_5 clicked"),
-        relief="flat"
-    )
-    button_5.place(
-        x=426.0,
-        y=325.0,
-        width=172.0,
-        height=34.0
-    )
-
-    button_image_6 = PhotoImage(
-        file=relative_to_assets("button_6.png"))
-    button_6 = Button(
-        image=button_image_6,
-        borderwidth=0,
-        highlightthickness=0,
-        command=lambda: print("button_6 clicked"),
-        relief="flat"
-    )
-    button_6.place(
-        x=625.0,
-        y=325.0,
-        width=172.0,
-        height=34.0
-    )
-
-    button_image_7 = PhotoImage(
-        file=relative_to_assets("button_7.png"))
-    button_7 = Button(
-        image=button_image_7,
-        borderwidth=0,
-        highlightthickness=0,
-        command=lambda: print("button_7 clicked"),
-        relief="flat"
-    )
-    button_7.place(
-        x=228.0,
-        y=526.0,
-        width=172.0,
-        height=34.0
-    )
-
-    button_image_8 = PhotoImage(
-        file=relative_to_assets("button_8.png"))
-    button_8 = Button(
-        image=button_image_8,
-        borderwidth=0,
-        highlightthickness=0,
-        command=lambda: print("button_8 clicked"),
-        relief="flat"
-    )
-    button_8.place(
-        x=818.0,
-        y=322.0,
-        width=172.0,
-        height=34.0
-    )
-
-    button_image_9 = PhotoImage(
-        file=relative_to_assets("button_9.png"))
-    button_9 = Button(
-        image=button_image_9,
-        borderwidth=0,
-        highlightthickness=0,
-        command=lambda: print("button_9 clicked"),
-        relief="flat"
-    )
-    button_9.place(
-        x=597.0,
-        y=27.0,
-        width=48.0,
-        height=49.0
-    )
-
-    button_image_10 = PhotoImage(
-        file=relative_to_assets("button_10.png"))
-    button_10 = Button(
-        image=button_image_10,
-        borderwidth=0,
-        highlightthickness=0,
-        command=lambda: print("button_10 clicked"),
-        relief="flat"
-    )
-    button_10.place(
-        x=739.0,
-        y=22.0,
-        width=54.0,
-        height=58.0
-    )
-
-    button_image_11 = PhotoImage(
-        file=relative_to_assets("button_11.png"))
-    button_11 = Button(
-        image=button_image_11,
-        borderwidth=0,
-        highlightthickness=0,
-        command=lambda: print(Session.get("usuario")),
-        relief="flat"
-    )
-    button_11.place(
-        x=813.0,
-        y=22.0,
-        width=53.0,
-        height=52.0
-    )
     window.resizable(False, False)
     window.mainloop()
+
+def open_product_view(window, category_id):
+    # Limpiar el canvas actual
+    for widget in window.winfo_children():
+        widget.destroy()
+
+    # Crear un nuevo canvas
+    canvas = Canvas(
+        window,
+        bg="#FFFFFF",
+        height=700,
+        width=1024,
+        bd=0,
+        highlightthickness=0,
+        relief="ridge"
+    )
+    canvas.place(x=0, y=0)
+
+    # Aquí puedes cargar la vista de productos para la categoría específica
+    create_product_grid(window, canvas, category_id, lambda: open_usuario_gui())
+
+if __name__ == "__main__":
+    open_usuario_gui()
