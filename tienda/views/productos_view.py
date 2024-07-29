@@ -6,6 +6,9 @@ from tkinter import PhotoImage
 from pathlib import Path
 from tienda.session import Session
 from tienda.database.queries import get_products_by_category
+from tienda.cart import Cart
+
+cart = Cart()  # Crear una instancia del carrito
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r"./assets/productos_view")
@@ -111,6 +114,7 @@ class ProductView:
             command=command,
             relief="flat"
         )
+        button.image = image  # Mantener referencia
         button.place(x=x, y=y, width=width, height=height)
         setattr(self, f"{name}_image", image)
 
@@ -135,9 +139,11 @@ class ProductView:
         self.update_quantity_display()
 
     def add_to_cart(self):
+        cart.add_product(self.product)
         print(f"Se agrego {self.product.quantity} de {self.product.name} al carrito, "
               f"con un precio unitario de: ${self.product.price:.2f}, "
               f"para un total de: ${self.product.price * self.product.quantity:.2f}")
+        print(f"Total en el carrito: ${cart.get_total():.2f}")
 
     def update_quantity_display(self):
         self.canvas.itemconfig(self.quantity_text, text=str(self.product.quantity))
@@ -164,68 +170,27 @@ def create_product_grid(window, canvas, category_id, return_callback):
         outline=""
     )
 
-    entry_image_1 = PhotoImage(
-        file=relative_to_assets("entry_1.png"))
-    entry_bg_1 = canvas.create_image(
-        440.0,
-        49.5,
-        image=entry_image_1
-    )
-    entry_1 = tk.Entry(
-        bd=0,
-        bg="#D9D9D9",
-        fg="#000716",
-        highlightthickness=0
-    )
-    entry_1.place(
-        x=223.0,
-        y=19.0,
-        width=434.0,
-        height=59.0
-    )
-
-    image_image_1 = PhotoImage(
-        file=relative_to_assets("image_1.png"))
-    image_1 = canvas.create_image(
-        90.0,
-        45.0,
-        image=image_image_1
-    )
-
     canvas.create_text(
-        887.0,
-        31.0,
+        39.0,
+        120.0,
         anchor="nw",
-        text=Session.get("usuario"),
-        fill="#FFFFFF",
+        text="Productos",
+        fill="#720902",
         font=("Inter", 25 * -1)
     )
 
-    logo_button_image = PhotoImage(
-        file=relative_to_assets("logo.png"))
-    logo_button = tk.Button(
-        image=logo_button_image,
-        borderwidth=0,
-        highlightthickness=0,
-        command=return_callback,  # Volver al menú principal
-        relief="flat"
-    )
-    logo_button.place(
-        x=54.0,
-        y=10.0,
-        width=73.0,
-        height=70.0
-    )
-
+    # Botón de usuario
     user_button_image = PhotoImage(
         file=relative_to_assets("user.png"))
     user_button = tk.Button(
+        window,
         image=user_button_image,
         borderwidth=0,
         highlightthickness=0,
         command=lambda: print(Session.get("usuario")),
         relief="flat"
     )
+    user_button.image = user_button_image  # Mantener referencia
     user_button.place(
         x=829.0,
         y=24.0,
@@ -233,15 +198,18 @@ def create_product_grid(window, canvas, category_id, return_callback):
         height=60.0
     )
 
+    # Botón del carrito
     cart_button_image = PhotoImage(
         file=relative_to_assets("cart.png"))
     cart_button = tk.Button(
+        window,
         image=cart_button_image,
         borderwidth=0,
         highlightthickness=0,
-        command=lambda: print("cart clicked"),
+        command=lambda: open_cart_view(window, canvas),
         relief="flat"
     )
+    cart_button.image = cart_button_image  # Mantener referencia
     cart_button.place(
         x=743.0,
         y=24.0,
@@ -249,21 +217,105 @@ def create_product_grid(window, canvas, category_id, return_callback):
         height=50.0
     )
 
+    # Botón de búsqueda
     search_button_image = PhotoImage(
         file=relative_to_assets("search.png"))
     search_button = tk.Button(
+        window,
         image=search_button_image,
         borderwidth=0,
         highlightthickness=0,
         command=lambda: print("search clicked"),
         relief="flat"
     )
+    search_button.image = search_button_image  # Mantener referencia
     search_button.place(
         x=599.0,
         y=24.0,
         width=50.0,
         height=50.0
     )
+
+    # Botón del logo (Inicio)
+    logo_button_image = PhotoImage(
+        file=relative_to_assets("logo.png"))
+    logo_button = tk.Button(
+        window,
+        image=logo_button_image,
+        borderwidth=0,
+        highlightthickness=0,
+        command=return_callback,  # Volver al menú principal
+        relief="flat"
+    )
+    logo_button.image = logo_button_image  # Mantener referencia
+    logo_button.place(
+        x=54.0,
+        y=10.0,
+        width=73.0,
+        height=70.0
+    )
+
+def open_cart_view(window, canvas):
+    # Limpiar el canvas actual
+    for widget in window.winfo_children():
+        widget.destroy()
+
+    # Crear un nuevo canvas
+    canvas = tk.Canvas(
+        window,
+        bg="#FFFFFF",
+        height=700,
+        width=1024,
+        bd=0,
+        highlightthickness=0,
+        relief="ridge"
+    )
+    canvas.place(x=0, y=0)
+
+    canvas.create_rectangle(
+        0.0,
+        0.0,
+        1024.0,
+        99.0,
+        fill="#720902",
+        outline="")
+
+    canvas.create_text(
+        50, 120,
+        anchor="nw",
+        text="Carrito de Compras",
+        fill="#720902",
+        font=("Inter", 25 * -1)
+    )
+
+    y_position = 160
+    for item in cart.get_items():
+        product = item['product']
+        quantity = item['quantity']
+        canvas.create_text(
+            50, y_position,
+            anchor="nw",
+            text=f"{product.name} - ${product.price:.2f} x {quantity} = ${product.price * quantity:.2f}",
+            fill="#000000",
+            font=("Inter", 16 * -1)
+        )
+        y_position += 30
+
+    canvas.create_text(
+        50, y_position + 20,
+        anchor="nw",
+        text=f"Total: ${cart.get_total():.2f}",
+        fill="#000000",
+        font=("Inter", 18 * -1)
+    )
+
+    back_button = tk.Button(
+        window,
+        text="Volver",
+        command=lambda: open_usuario_gui(),
+        relief="flat"
+    )
+    back_button.place(x=50, y=y_position + 60, width=100, height=30)
 
 def main():
     open_usuario_gui()

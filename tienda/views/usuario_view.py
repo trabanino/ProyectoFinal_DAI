@@ -1,3 +1,4 @@
+# usuario_view.py
 from pathlib import Path
 from tkinter import Tk, Canvas, Entry, Button, PhotoImage
 from tienda.decoradores import login_required
