@@ -1,7 +1,8 @@
 from pathlib import Path
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
-from .admin_login_view import open_admin_login_gui
+from tienda.views.admin_login_view import open_admin_login_gui
 from tienda.controllers.login_controller import handle_login
+from tienda.views.register_view import open_register_view
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r"./assets/login_view")
@@ -137,7 +138,7 @@ def open_login_gui():
         image=button_image_3,
         borderwidth=0,
         highlightthickness=0,
-        command=lambda: print("button_3 clicked"),
+        command=lambda: window.destroy() or open_register_view(),
         relief="flat"
     )
     button_3.place(

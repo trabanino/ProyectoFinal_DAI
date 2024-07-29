@@ -1,6 +1,7 @@
 from tienda.database.conexion import create_connection
-
+from mysql.connector import Error
 # unico a login
+import logging
 def handle_login_attempt(username, password, ip_address):
     try:
         connection = create_connection()
@@ -26,3 +27,29 @@ def handle_login_attempt(username, password, ip_address):
             connection.close()
 
 # unico a productos
+
+
+import logging
+
+def handle_register_process(user, name, email, password):
+    connection = create_connection()
+    if connection is None:
+        return False, "Fallo al conectar con la DB"
+
+    try:
+        cursor = connection.cursor()
+        query = """
+        INSERT INTO Usuario (user, Nombre, Email, password) VALUES (%s, %s, %s, %s)
+        """
+        print(f"Executing query: {query} with values: {(user, name, email, password)}")  # Debug print
+        cursor.execute(query, (user, name, email, password))
+        connection.commit()
+        return True, "Registro exitoso"
+    except Exception as e:
+        logging.error(f"Error al registrar el nuevo usuario: {e}")
+        print(f"Error al registrar el nuevo usuario: {e}")  # Debug print
+        return False, f"Error al registrar el nuevo usuario: {e}"
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
